@@ -26,6 +26,7 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.os.Vibrator;
 import android.provider.Settings;
 
@@ -207,6 +208,11 @@ public class Ringer {
 
         stopRinging();
 
+        if (Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.VIBRATE_ON_CALLWAITING, 0, UserHandle.USER_CURRENT) == 1) {
+            vibrate(200, 300, 500);
+        }
+
         if (mCallWaitingPlayer == null) {
             Log.addEvent(call, LogUtils.Events.START_CALL_WAITING_TONE);
             mCallWaitingCall = call;
@@ -287,5 +293,12 @@ public class Ringer {
             return false;
         }
         return mSystemSettingsUtil.canVibrateWhenRinging(context);
+    }
+
+    public void vibrate(int v1, int p1, int v2) {
+        long[] pattern = new long[] {
+            0, v1, p1, v2
+        };
+        ((Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(pattern, -1);
     }
 }
